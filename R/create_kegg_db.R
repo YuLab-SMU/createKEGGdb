@@ -20,13 +20,10 @@ create_kegg_db <- function(species) {
         dir.create(R_src,recursive = TRUE)
     }
 
-    ## file.copy(from = system.file("KEGG.db", "R", "zzz.R", package = "createKEGGdb"),
-    ##           to = paste(R_src, "zzz.R", sep = .Platform$file.sep))
-
-    fcp("R", todir = R_src, file = "zzz.R")
-    fcp(todir = packagedir, file = "DESCRIPTION")
-    fcp(todir = packagedir, file = "LICENSE")
-    fcp(todir = packagedir, file = "NAMESPACE")
+    .fcp("R", todir = R_src, file = "zzz.R")
+    .fcp(todir = packagedir, file = "DESCRIPTION")
+    .fcp(todir = packagedir, file = "LICENSE")
+    .fcp(todir = packagedir, file = "NAMESPACE")
 
     prepare_kegg_db(species, sqlite_path)
 
@@ -34,7 +31,7 @@ create_kegg_db <- function(species) {
 }
 
 
-fcp <- function(..., todir, file) {
+.fcp <- function(..., todir, file) {
     file.copy(from = system.file("KEGG.db", ..., file, package = "createKEGGdb"),
               to = paste(todir, file, sep = .Platform$file.sep))
 }
