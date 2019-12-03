@@ -29,7 +29,7 @@ Guangchuang YU and Ziru Chen
 
 ```r
 ## install.packages("remotes")
-remotes::install_github("GuangchuangYu/treeio")
+remotes::install_github("GuangchuangYu/createKEGGdb")
 ```
 
 
