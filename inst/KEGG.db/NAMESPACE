@@ -1,0 +1,13 @@
+import(methods)
+import(AnnotationDbi)
+
+### Only put what is statically exported here. All the AnnObj instances
+### created at load time are dynamically exported (refer to R/zzz.R for
+### the details).
+export(
+    KEGG,
+    KEGG_dbconn,
+    KEGG_dbfile,
+    KEGG_dbschema,
+    KEGG_dbInfo
+)

@@ -1,0 +1,13 @@
+Package: KEGG.db
+Title: KEGG.db for KEGG enrichment analysis.
+Description: KEGG.db for KEGG enrichment analysis.
+Version: 1.0
+Author: xxx <xxx@xxx.xxx.com>
+Maintainer: xxx <xxx@xxx.xxx.com>
+Depends: R (>= 2.7.0), methods, AnnotationDbi (>= 1.44.0)
+Imports: methods, AnnotationDbi
+Suggests: DBI
+License: BSD
+License_restricts_use: yes
+biocViews: AnnotationData, FunctionalAnnotation
+
