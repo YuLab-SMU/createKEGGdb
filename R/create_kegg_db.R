@@ -8,8 +8,30 @@
 ##' @author Guangchuang Yu and Ziru Chen
 create_kegg_db <- function(species) {
     packagedir <- tempfile() # tempdir() maynot empty
-    dir.create(packagedir)
 
+    ## skeleton
+    prepare_pkg_skeleton(packagedir)
+
+    ## sqlite
+    sqlite_path <- paste(packagedir, "inst", "extdata", sep=.Platform$file.sep)
+    prepare_kegg_db(species, sqlite_path)
+
+    ## build pkg
+    pkgbuild::build(packagedir, dest_path = ".")
+}
+
+
+prepare_pkg_skeleton <- function(packagedir) {
+    .fcp <- function(..., todir, file) {
+        file.copy(from = system.file("KEGG.db", ..., file, package = "createKEGGdb"),
+                  to = paste(todir, file, sep = .Platform$file.sep))
+    }
+
+    if(!dir.exists(packagedir)) {
+        dir.create(packagedir)
+    }
+
+    ## to store sqlite
     sqlite_path <- paste(packagedir, "inst", "extdata", sep=.Platform$file.sep)
     if(!dir.exists(sqlite_path)){
         dir.create(sqlite_path,recursive = TRUE)
@@ -24,16 +46,6 @@ create_kegg_db <- function(species) {
     .fcp(todir = packagedir, file = "DESCRIPTION")
     .fcp(todir = packagedir, file = "LICENSE")
     .fcp(todir = packagedir, file = "NAMESPACE")
-
-    prepare_kegg_db(species, sqlite_path)
-
-    pkgbuild::build(packagedir, dest_path = ".")
-}
-
-
-.fcp <- function(..., todir, file) {
-    file.copy(from = system.file("KEGG.db", ..., file, package = "createKEGGdb"),
-              to = paste(todir, file, sep = .Platform$file.sep))
 }
 
 
