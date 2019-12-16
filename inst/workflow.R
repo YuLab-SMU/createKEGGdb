@@ -8,7 +8,7 @@ layout = dot
 compound =true
 #color = crimson
 
-download [label='Query KEGG pathway for specific species']
+download [label='Query KEGG pathways for selected organisms']
 database [label='Pack KEGG data into a sqlite file']
 pkg0 [label='KEGG.db package skeleton']
 pkg [label='Build KEGG.db package']

@@ -42,3 +42,5 @@ remotes::install_github("YuLab-SMU/createKEGGdb")
 ## :book: Documents
 
 + [KEGG数据本地化，再也不用担心网络问题了](https://mp.weixin.qq.com/s/k24iLQ9mFFBtEDxQoQGE4g)
++ [多物种批量下载KEGG数据并做成KEGG.db包](https://mp.weixin.qq.com/s/PwrdQAkG3pTlwMB6Mj8wXQ)
+
