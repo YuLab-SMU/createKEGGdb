@@ -158,3 +158,7 @@ prepare_kegg_db <- function(organisms, sqlite_path) {
   dbDisconnect(db)
   invisible(dbfile)
 }
+
+
+utils::globalVariables(".")
+
