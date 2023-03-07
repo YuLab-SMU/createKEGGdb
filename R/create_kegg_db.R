@@ -57,9 +57,9 @@ get_path2name <- function(species){
     keggpathid2name.list <- vector("list", length(species))
     names(keggpathid2name.list) <- species
     for (i in species) {
-      keggpathid2name.list[[i]] <- clusterProfiler:::kegg_list("pathway", i)
-      keggpathid2name.df <- do.call(rbind, keggpathid2name.list)
+      keggpathid2name.list[[i]] <- clusterProfiler:::kegg_list("pathway", i)    
     }
+    keggpathid2name.df <- do.call(rbind, keggpathid2name.list)
     rownames(keggpathid2name.df) <- NULL
   }
   keggpathid2name.df[,2] <- sub("\\s-\\s[a-zA-Z ]+\\(\\w+\\)$", "", keggpathid2name.df[,2])
