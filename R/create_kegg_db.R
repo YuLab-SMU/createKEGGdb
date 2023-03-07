@@ -50,9 +50,20 @@ prepare_pkg_skeleton <- function(packagedir) {
 
 
 ##' @importFrom magrittr %<>%
-get_path2name <- function(){
-  keggpathid2name.df <- clusterProfiler:::kegg_list("pathway")
-  keggpathid2name.df[,1] %<>% gsub("path:map", "", .)
+get_path2name <- function(species){
+  if (length(species) == 1) {
+    keggpathid2name.df <- clusterProfiler:::kegg_list("pathway", species)
+  } else {
+    keggpathid2name.list <- vector("list", length(species))
+    names(keggpathid2name.list) <- species
+    for (i in species) {
+      keggpathid2name.list[[i]] <- clusterProfiler:::kegg_list("pathway", i)
+      keggpathid2name.df <- do.call(rbind, keggpathid2name.list)
+    }
+    rownames(keggpathid2name.df) <- NULL
+  }
+  keggpathid2name.df[,2] <- sub("\\s-\\s[a-zA-Z ]+\\(\\w+\\)$", "", keggpathid2name.df[,2])
+  # keggpathid2name.df[,1] %<>% gsub("path:map", "", .)
   colnames(keggpathid2name.df) <- c("path_id","path_name")
   return(keggpathid2name.df)
 }
@@ -95,7 +106,7 @@ prepare_kegg_db <- function(organisms, sqlite_path) {
   drv <- dbDriver("SQLite")
   db <- dbConnect(drv, dbname=dbfile)
 
-  KEGGPATHID2NAME <- get_path2name()
+  KEGGPATHID2NAME <- get_path2name(organisms)
   ###################################################
   ### put the pathway2name data into the tables 
   ###################################################
