@@ -1,6 +1,6 @@
 Package: createKEGGdb
 Title: Create KEGG.db Package
-Version: 0.0.3
+Version: 0.0.3.991
 Authors@R: c(
     person("Guangchuang", "Yu",     email = "guangchuangyu@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6485-8781")),
     person("Ziru", "Chen", email = "chenziru@picb.ac.cn", role = "aut")
