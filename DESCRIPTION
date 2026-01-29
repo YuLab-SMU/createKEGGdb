@@ -1,6 +1,6 @@
 Package: createKEGGdb
 Title: Create KEGG.db Package
-Version: 0.0.3
+Version: 0.0.4
 Authors@R: c(
     person("Guangchuang", "Yu",     email = "guangchuangyu@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6485-8781")),
     person("Ziru", "Chen", email = "chenziru@picb.ac.cn", role = "aut")
@@ -14,4 +14,4 @@ Imports:
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3

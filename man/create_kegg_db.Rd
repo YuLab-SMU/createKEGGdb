@@ -4,10 +4,14 @@
 \alias{create_kegg_db}
 \title{create_kegg_db}
 \usage{
-create_kegg_db(species)
+create_kegg_db(species, author = NULL, maintainer = NULL)
 }
 \arguments{
 \item{species}{one of KEGG supported species, e.g. hsa for human}
+
+\item{author}{a string for the Author field in the generated package DESCRIPTION}
+
+\item{maintainer}{a string for the Maintainer field in the generated package DESCRIPTION}
 }
 \value{
 KEGG.db package generated in working directory
