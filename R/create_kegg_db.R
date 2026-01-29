@@ -22,6 +22,58 @@ create_kegg_db <- function(species, author = NULL, maintainer = NULL) {
     pkgbuild::build(packagedir, dest_path = ".")
 }
 
+##' Create KEGG.db package for microbiota
+##'
+##' This function queries KEGG organism list and builds KEGG.db for selected microbiota groups.
+##'
+##' @title create_kegg_db_microbiota
+##' @param output_dir output directory to write the generated KEGG.db package
+##' @param include microbiota groups to include
+##' @param author a string for the Author field in the generated package DESCRIPTION
+##' @param maintainer a string for the Maintainer field in the generated package DESCRIPTION
+##' @return paths of the generated package tarballs
+##' @export
+create_kegg_db_microbiota <- function(
+  output_dir = ".",
+  include = c("bacteria", "archaea", "fungi", "viruses"),
+  author = NULL,
+  maintainer = NULL
+) {
+  include <- unique(as.character(include))
+  valid_include <- c("bacteria", "archaea", "fungi", "viruses")
+  include <- intersect(include, valid_include)
+
+  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+
+  org_url <- "https://rest.kegg.jp/list/organism"
+  org <- read_kegg_table(org_url)
+  if (is.null(org) || nrow(org) == 0) stop("Failed to download KEGG organism list.")
+
+  if (ncol(org) < 4) {
+    org[[4]] <- ""
+  }
+  colnames(org)[1:4] <- c("kegg_taxid", "species", "name", "lineage")
+
+  keep <- rep(FALSE, nrow(org))
+  if ("bacteria" %in% include) keep <- keep | grepl("^Prokaryotes;Bacteria", org$lineage)
+  if ("archaea" %in% include) keep <- keep | grepl("^Prokaryotes;Archaea", org$lineage)
+  if ("fungi" %in% include) keep <- keep | grepl("^Eukaryotes;Fungi", org$lineage)
+  if ("viruses" %in% include) keep <- keep | grepl("^Viruses", org$lineage)
+
+  species <- unique(org$species[keep])
+  species <- species[nzchar(species)]
+
+  old_wd <- getwd()
+  on.exit(setwd(old_wd), add = TRUE)
+  setwd(output_dir)
+
+  before <- list.files(".", pattern = "^KEGG\\.db_.*\\.tar\\.gz$", full.names = TRUE)
+  create_kegg_db(species, author = author, maintainer = maintainer)
+  after <- list.files(".", pattern = "^KEGG\\.db_.*\\.tar\\.gz$", full.names = TRUE)
+
+  setdiff(after, before)
+}
+
 
 prepare_pkg_skeleton <- function(packagedir, author = NULL, maintainer = NULL) {
     .fcp <- function(..., todir, file) {
@@ -64,18 +116,44 @@ prepare_pkg_skeleton <- function(packagedir, author = NULL, maintainer = NULL) {
 
 
 ##' @importFrom magrittr %<>%
+read_kegg_table <- function(url) {
+  tryCatch(
+    utils::read.delim(
+      url,
+      sep = "\t",
+      header = FALSE,
+      quote = "",
+      stringsAsFactors = FALSE,
+      fill = TRUE,
+      comment.char = ""
+    ),
+    error = function(e) NULL
+  )
+}
+
+kegg_list <- function(db, organism = NULL) {
+  url <- if (is.null(organism)) {
+    paste0("https://rest.kegg.jp/list/", db)
+  } else {
+    paste0("https://rest.kegg.jp/list/", db, "/", organism)
+  }
+
+  df <- read_kegg_table(url)
+  if (is.null(df) || nrow(df) == 0 || ncol(df) < 2) return(NULL)
+  df[, 1:2, drop = FALSE]
+}
+
+kegg_link <- function(organism, db) {
+  url <- paste0("https://rest.kegg.jp/link/", organism, "/", db)
+  df <- read_kegg_table(url)
+  if (is.null(df) || nrow(df) == 0 || ncol(df) < 2) return(NULL)
+  df[, 1:2, drop = FALSE]
+}
+
 get_path2name <- function(species){
   safe_kegg_list <- function(db, organism = NULL) {
-    tryCatch(
-      {
-        if (is.null(organism)) {
-          clusterProfiler:::kegg_list(db)
-        } else {
-          clusterProfiler:::kegg_list(db, organism)
-        }
-      },
-      error = function(e) NULL
-    )
+    if (is.null(organism)) return(kegg_list(db))
+    kegg_list(db, organism)
   }
 
   if (length(species) == 1) {
@@ -107,10 +185,7 @@ get_path2name <- function(species){
 
 ##' @importFrom magrittr %<>%
 download.organisms.KEGG <- function(organism) {
-  keggpathid2extid.df <- tryCatch(
-    clusterProfiler:::kegg_link(organism, "pathway"),
-    error = function(e) NULL
-  )
+  keggpathid2extid.df <- kegg_link(organism, "pathway")
 
   if (is.null(keggpathid2extid.df) || nrow(keggpathid2extid.df) == 0) {
     write(paste(Sys.time(), "Pathway data of", organism, "is null."), stderr())
@@ -127,13 +202,12 @@ download.organisms.KEGG <- function(organism) {
 
 
 get_organisms_list <- function(db){
-  organisms <- tryCatch(clusterProfiler:::kegg_list(db), error = function(e) NULL)
+  organisms <- kegg_list(db)
   if (is.null(organisms) || nrow(organisms) == 0) return(character(0))
   as.character(organisms[,2])
 }
 
 
-##' @importFrom clusterProfiler download_KEGG
 ##' @importFrom RSQLite dbDriver
 ##' @importFrom RSQLite dbConnect
 ##' @importFrom RSQLite dbWriteTable
@@ -172,7 +246,7 @@ prepare_kegg_db <- function(organisms, sqlite_path) {
       row.names = FALSE
     )
 
-    kegg_map_pathway <- tryCatch(clusterProfiler:::kegg_list("pathway"), error = function(e) NULL)
+    kegg_map_pathway <- kegg_list("pathway")
     if (!is.null(kegg_map_pathway) && nrow(kegg_map_pathway) > 0) {
       kegg_map_pathway[, 2] <- sub("\\s-\\s[a-zA-Z ]+\\(\\w+\\)$", "", kegg_map_pathway[, 2])
       map_ids <- gsub("[^:]+:", "", kegg_map_pathway[, 1])

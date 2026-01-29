@@ -1,4 +1,9 @@
 
+# createKEGGdb 0.0.5
+
++ add `create_kegg_db_microbiota()` to build microbiota KEGG.db (2026-1-29, Thu)
++ avoid using `clusterProfiler:::` internals to fix compatibility issue (2026-1-29, Thu)
+
 # createKEGGdb 0.0.4
 
 + fix `species="all"` and missing pathway species handling (2026-1-29, Thu)
